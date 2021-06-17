@@ -5,6 +5,7 @@ import threading
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.pool import StaticPool
 
 from splitio.models.impressions import Label
 
@@ -43,9 +44,11 @@ class DbClient:
 
     def __init__(self, config=None):
         super().__init__()
+        # default to config suitable for in-memory SQLite usage
         default_config = {
             'sql.url': 'sqlite://',
             'sql.connect_args': {'check_same_thread': False},
+            'sql.poolclass': StaticPool,
         }
         default_config.update(config or {})
         self._db_engine = sqlalchemy.engine_from_config(configuration=default_config, prefix='sql.')
